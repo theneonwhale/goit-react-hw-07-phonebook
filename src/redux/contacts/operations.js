@@ -1,49 +1,44 @@
-import axios from 'axios';
-import {
-  fetchContactsRequest,
-  fetchContactsSuccess,
-  fetchContactsError,
-  addContactRequest,
-  addContactSuccess,
-  addContactError,
-  deleteContactRequest,
-  deleteContactSuccess,
-  deleteContactError,
-} from './actions';
+import * as API from '../../services/api-contacts';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
-axios.defaults.baseURL = 'http://localhost:4040';
+const fetchContacts = createAsyncThunk(
+  'contacts/fetchContacts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await API.fetchContacts();
 
-const fetchContacts = () => async dispatch => {
-  dispatch(fetchContactsRequest());
+      return data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
 
-  try {
-    const { data } = await axios.get('/contacts');
+const addContact = createAsyncThunk(
+  'contacts/addContact',
+  async (contact, { rejectWithValue }) => {
+    try {
+      const { data } = await API.addContact(contact);
 
-    dispatch(fetchContactsSuccess(data));
-  } catch (error) {
-    dispatch(fetchContactsError(error));
-  }
-  // .then(({ data }) => dispatch(fetchContactsSuccess(data)))
-  // .catch(error => dispatch(fetchContactsError(error)));
-};
+      return data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
 
-const addContact = contact => dispatch => {
-  dispatch(addContactRequest());
+const deleteContact = createAsyncThunk(
+  'contacts/deleteContact',
+  async (contactId, { rejectWithValue }) => {
+    try {
+      await API.deleteContact(contactId);
 
-  axios
-    .post('/contacts', contact)
-    .then(({ data }) => dispatch(addContactSuccess(data)))
-    .catch(error => dispatch(addContactError(error)));
-};
-
-const deleteContact = contactId => dispatch => {
-  dispatch(deleteContactRequest());
-
-  axios
-    .delete(`/contacts/${contactId}`)
-    .then(() => dispatch(deleteContactSuccess()))
-    .catch(error => dispatch(deleteContactError(error)));
-};
+      return contactId;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
 
 const operations = { fetchContacts, addContact, deleteContact };
 

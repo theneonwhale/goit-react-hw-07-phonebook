@@ -1,24 +1,28 @@
 import PropTypes from 'prop-types';
+import { useState } from 'react';
+import Loader from '../Loader/Loader';
 import s from './ContactList.module.css';
-import { useDispatch } from 'react-redux';
-import { operations } from 'redux/contacts';
-
-// import actions from '../../redux/actions';
-// import operations from '../../redux/operations';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectors, operations } from 'redux/contacts';
 
 export default function ContactListItem({ name, number, id }) {
+  const [deleteId, setDeleteId] = useState(0);
+  const loading = useSelector(selectors.getLoading);
+  const deleting = deleteId === id;
   const dispatch = useDispatch();
+
+  const handleDelete = () => {
+    setDeleteId(id);
+    dispatch(operations.deleteContact(id));
+  };
 
   return (
     <li className={s.item}>
       <p className={s.contact}>
         {name}: {number}
       </p>
-      <button
-        onClick={() => dispatch(operations.deleteContact(id))}
-        className={s.button}
-      >
-        Remove
+      <button onClick={handleDelete} className={s.button}>
+        {loading && deleting ? <Loader /> : 'Remove'}
       </button>
     </li>
   );

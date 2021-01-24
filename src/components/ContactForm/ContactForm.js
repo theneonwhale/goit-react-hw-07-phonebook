@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { operations, selectors } from 'redux/contacts';
-// import { getContacts } from '../../redux/selectors';
-// import operations from '../../redux/operations';
+import Loader from '../Loader/Loader';
 import s from './ContactForm.module.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,20 +9,20 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function ContactForm() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const [adding, setAdding] = useState(false);
 
   const contacts = useSelector(selectors.getContacts);
+
+  const loading = useSelector(selectors.getLoading);
 
   const contact = { name, number };
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(operations.fetchContacts());
-    console.log(dispatch(operations.fetchContacts()));
-  }, [dispatch]);
-
   const handleChange = e => {
     const { name, value } = e.currentTarget;
+
+    setAdding(true);
 
     switch (name) {
       case 'name':
@@ -42,6 +41,16 @@ export default function ContactForm() {
   const handleSubmit = e => {
     e.preventDefault();
 
+    if (contact.name === '') {
+      toast.dark(`🦝 Enter name...`, { autoClose: 3000 });
+      return;
+    }
+
+    if (contact.number === '') {
+      toast.dark(`🦝 Enter number...`, { autoClose: 3000 });
+      return;
+    }
+
     contacts.find(
       ({ name }) => name.toLowerCase() === contact.name.toLowerCase(),
     )
@@ -52,8 +61,14 @@ export default function ContactForm() {
   };
 
   const reset = () => {
-    setName('');
-    setNumber('');
+    setTimeout(() => {
+      setName('');
+      setNumber('');
+    }, 0);
+
+    setTimeout(() => {
+      setAdding(false);
+    }, 1000);
   };
 
   return (
@@ -82,7 +97,7 @@ export default function ContactForm() {
           />
         </label>
         <button type="submit" className={s.button}>
-          Add contact
+          {loading && adding ? <Loader /> : 'Add contact'}
         </button>
       </form>
       <ToastContainer />

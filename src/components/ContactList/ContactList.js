@@ -4,14 +4,12 @@ import ContactItem from './ContactItem';
 import { useSelector } from 'react-redux';
 import { selectors } from 'redux/contacts';
 
-// import { getVisibleContacts } from '../../redux/selectors';
-
 export default function ContactList() {
-  const { contacts } = useSelector(selectors.getVisibleContacts);
-  console.log('list', contacts);
+  const contacts = useSelector(selectors.getVisibleContacts);
+
   return (
     <ul className={s.contacts}>
-      {contacts.map(({ name = 'anonymous', number = 'unknown', id = 0 }) => (
+      {contacts.map(({ name = 'anonymous', number = 'unknown', id = null }) => (
         <ContactItem key={id} name={name} number={number} id={id} />
       ))}
     </ul>
